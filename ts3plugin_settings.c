@@ -3,11 +3,29 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 *******************************************/
 
 #include <obs-internal.h>
-#include <stdatomic.h>
 
 #include "ts3plugin.h"
 #include "ts3plugin_settings.h"
 
+#if _WIN32
+char* adrs;
+int iname;
+bool bname;
+bool bright;
+bool btalker;
+int italker;
+
+char* cluid;
+char* prefix;
+bool bsuffix;
+bool ball;
+int iMnD = 0;
+
+char* nameList;
+
+bool needToRun = false;
+#else
+#include <stdatomic.h>
 _Atomic(char*) adrs;
 _Atomic(int) iname;
 _Atomic(bool) bname;
@@ -23,22 +41,8 @@ _Atomic(int) iMnD = 0;
 
 _Atomic(char*) nameList;
 
-/*char* adrs;
-int iname;
-bool bname;
-bool bright;
-bool btalker;
-int italker;
-
-char* cluid;
-char* prefix;
-bool bsuffix;
-bool ball;
-int iMnD = 0;
-
-char* nameList;*/
-
 _Atomic(bool) needToRun = false;
+#endif
 
 static const char *ts3_plugin_get_name(void *unused)
 {

@@ -274,7 +274,7 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 			{
 				vbuffer[j + lastPlace] = vtemp[j];
 			}
-							lastPlace += i;
+			lastPlace += i;
 			length -= i;
 			vtemp.clear();
 		}
