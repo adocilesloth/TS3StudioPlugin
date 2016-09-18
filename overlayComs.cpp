@@ -25,7 +25,7 @@ void runOverlay(atomic<bool> &close)
 	vector<wstring> vname;
 	vector<int> vtime;
 	bool bsaid = false;
-
+	
 	slothSock sock;
 	char* adrs;
 
@@ -54,6 +54,7 @@ void runOverlay(atomic<bool> &close)
 	string cid;
 	string list;
 	wstring wlist;
+	const char *cllist;
 	vector<wstring> name;
 	int namesize;
 	vector<bool> talk;
@@ -69,7 +70,12 @@ void runOverlay(atomic<bool> &close)
 	wstringstream overlay;
 	string overlayString;
 
+	blog(LOG_INFO, "TS3: Overlay: Started");
+	#if _WIN32
 	while(!close)
+	#else
+	while(close)
+	#endif
 	{
 		//connect
 		adrs = getAddress();
@@ -77,7 +83,7 @@ void runOverlay(atomic<bool> &close)
 		{
 			if(discon)
 			{
-				blog(LOG_WARNING, "Overlay: Connection Failure: Check TS3 is running and ClientQuery Plugin is enabled");
+				blog(LOG_WARNING, "TS3: Connection Failure: Check TS3 is running and ClientQuery Plugin is enabled");
 				
 				discon = false;
 				//force Communicate, MuteandDeafen and ChannelSwitch
@@ -90,6 +96,7 @@ void runOverlay(atomic<bool> &close)
 		}
 
 		discon = true;
+
 		iResult = sock.recvAll(reci1, 181, 0);	//get TS3 Client...
 		if(!iResult)
 		{
@@ -117,7 +124,7 @@ void runOverlay(atomic<bool> &close)
 					goto skip;
 				}
 				tempstr = reci4;
-				std::memset(reci4, 0, 256);
+				memset(reci4, 0, 256);
 
 				while(tempstr.size() > 12)
 				{
@@ -180,7 +187,7 @@ void runOverlay(atomic<bool> &close)
 					goto skip;
 				}
 				tempstr = reci4;
-				std::memset(reci4, 0, 256);
+				memset(reci4, 0, 256);
 
 				while(tempstr.size() > 12)
 				{
@@ -233,7 +240,6 @@ void runOverlay(atomic<bool> &close)
 			overlay.str(L" ");	//empty client list
 			goto skip;
 		}
-
 		iResult = sock.recvAll(reci2, 64 ,0 ,"msg=");	//get whoami
 		if (!iResult)
 		{
@@ -256,12 +262,12 @@ void runOverlay(atomic<bool> &close)
 				bMnD = false;
 				add = false;
 			}
-			std::memset(reci2, 0, 64);
+			memset(reci2, 0, 64);
 			overlay.str(L" ");	//empty client list
 			goto skip;
 		}
 		tempstr = " ";
-		
+
 		if(!noserv)
 		{
 			blog(LOG_INFO, "Overlay: Now Connected to TS3 Server");
@@ -293,7 +299,7 @@ void runOverlay(atomic<bool> &close)
 		tempstr = "channelclientlist ";
 		tempstr.append(cid);
 		tempstr.append(" -voice\n");
-		const char *cllist = tempstr.c_str();
+		cllist = tempstr.c_str();
 		
 		//recieve setup
 		iname = getNumberOfNames();
@@ -490,10 +496,9 @@ void runOverlay(atomic<bool> &close)
 				}
 			}
 		}//end Only Show talkers
-
 		//reset variables
-		std::memset(reci1, 0, 181);
-		std::memset(reci2, 0, 64);
+		memset(reci1, 0, 181);
+		memset(reci2, 0, 64);
 		reci3.clear();
 		cid.clear();
 		list.clear();
@@ -506,6 +511,7 @@ void runOverlay(atomic<bool> &close)
 		tempstr.clear();
 
 	skip:
+
 		if(overlay.str() == L" ")
 		{
 			overlayString = " ";
@@ -516,6 +522,7 @@ void runOverlay(atomic<bool> &close)
 		}
 		sendOverlay(overlayString.c_str());
 		sock.closeConnection();
+
 		psleep(100);
 	}//end while(!close)
 
@@ -544,7 +551,7 @@ void runOverlay(atomic<bool> &close)
 		goto shutdown;
 	}
 	tempstr = reci4;
-	std::memset(reci4, 0, 256);
+	memset(reci4, 0, 256);
 
 	while(tempstr.size() > 12)
 	{
@@ -567,6 +574,8 @@ shutdown:
 	//ChannelSwitch(0, overlay);
 	sock.closeConnection();
 
+	blog(LOG_INFO, "TS3: Overlay: Stopped");
+	
 	return;
 
 }

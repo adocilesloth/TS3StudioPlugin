@@ -78,6 +78,35 @@ void wReplaceAll(std::wstring &str, const std::wstring& from, const std::wstring
 		return strTo;
 	}
 #else
+	#include <cstring>
+
+	std::wstring s2ws(const std::string& str)
+	{
+		std::string curLocale = setlocale(LC_ALL, ""); 
+		const char* _Source = str.c_str();
+		size_t _Dsize = mbstowcs(NULL, _Source, 0) + 1;
+		wchar_t *_Dest = new wchar_t[_Dsize];
+		wmemset(_Dest, 0, _Dsize);
+		mbstowcs(_Dest,_Source,_Dsize);
+		std::wstring strTo = _Dest;
+		delete []_Dest;
+		setlocale(LC_ALL, curLocale.c_str());
+		return strTo;
+	}
+
+	std::string ws2s(const std::wstring& wstr)
+	{
+		std::string curLocale = setlocale(LC_ALL, "");
+		const wchar_t* _Source = wstr.c_str();
+		size_t _Dsize = wcstombs(NULL, _Source, 0) + 1;
+		char *_Dest = new char[_Dsize];
+		memset(_Dest, 0, _Dsize);
+		wcstombs(_Dest,_Source,_Dsize);
+		std::string strTo = _Dest;
+		delete []_Dest;
+		setlocale(LC_ALL, curLocale.c_str());
+		return strTo;
+	}
 #endif
 
 //Sleep function

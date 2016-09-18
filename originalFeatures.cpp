@@ -86,7 +86,7 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 			blog(LOG_WARNING, "Communicate: useschandlerid=i Recieve Failure");
 			return poop;
 		}
-		std::memset(reci2, 0, 256);
+		memset(reci2, 0, 256);
 
 		//notifyregister
 		iResult = obs.sendAll(notify, (int)strlen(notify), 0);	//request notifyregister...
@@ -127,14 +127,16 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 		{
 			blog(LOG_WARNING, "Communicate: startpos == -1");
 			blog(LOG_WARNING, name.c_str());
-			goto endofif;
+			//goto endofif;
+			return poop;
 		}
 		size_t endpos = wname.find(identend);
 		if(endpos < startpos)
 		{
 			blog(LOG_WARNING, "Communicate: endpos < startpos");
 			blog(LOG_WARNING, name.c_str());
-			goto endofif;
+			//goto endofif;
+			return poop;
 		}
 		wname = wname.substr(startpos+5, endpos-startpos-5);
 		int count = wcountSubstring(wname, wspace);	//number of \s
@@ -215,7 +217,8 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 		if(rec.empty())
 		{
 			blog(LOG_WARNING, "Communicate: rec is empty");
-			goto endofif;
+			//goto endofif;
+			return poop;
 		}
 
 		//AppWarning(wnewname.str().c_str());		//print name being sent
@@ -237,7 +240,7 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 			return poop;
 		}
 
-endofif:
+//endofif:
 		wnewname.str(L"");
 		memset(reci2, 0, 256);
 		memset(reci3, 0, 256);

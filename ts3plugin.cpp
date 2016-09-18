@@ -11,10 +11,16 @@ extern "C"
 #include "utility.hpp"
 
 #include <thread>
+#include <atomic>
+#include <sstream>
 
 std::thread overlayThread;
 std::thread listenThread;
-std::atomic<bool> close(false);
+//#if _WIN32
+	std::atomic<bool> close(false);
+//#else
+//	bool close = false;
+//#endif
 std::atomic<bool> stopListening(false);
 
 OBS_DECLARE_MODULE()
@@ -46,7 +52,7 @@ void listen(void)
 	while(!stopListening)
 	{
 		if(!toggle)
-		{
+		{	
 			go = getNeedToRun();
 			if(go)
 			{
@@ -60,7 +66,9 @@ void listen(void)
 			stop = !getNeedToRun();
 			if(stop)
 			{
-				close = true;
+				#if _WIN32
+					close = true;
+				#endif
 				stop = false;
 				toggle = false;
 			}
@@ -80,7 +88,9 @@ bool obs_module_load(void)
 void obs_module_unload(void)
 {
 	stopListening = true;
-	close = true;
+	#if _WIN32
+		close = true;
+	#endif
 	return;
 }
 

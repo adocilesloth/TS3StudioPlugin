@@ -34,6 +34,9 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 #else
 	#include <sys/types.h> 
 	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <arpa/inet.h>
+	#include <unistd.h>
 
 	class slothSock
 	{

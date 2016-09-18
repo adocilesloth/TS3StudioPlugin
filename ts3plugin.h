@@ -26,4 +26,4 @@ bool getSuffix();
 bool getAllServers();
 int getMuteAndDeafen();
 
-#endif TS3PLUGIN_H
+#endif

@@ -1,3 +1,7 @@
+/*******************************************
+A Docile Sloth 2016 (adocilesloth@gmail.com)
+*******************************************/
+
 #ifndef TS3PLUGIN_SETTINGS_H
 #define TS3PLUGIN_SETTINGS_H
 

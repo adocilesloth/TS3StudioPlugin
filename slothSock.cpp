@@ -170,10 +170,10 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 #else	//Unix
 	bool slothSock::connectToHost(int port, char* adrs)
 	{
-		sock = socket(AF_INET, SOCK_STREAM, 0)
+		sock = socket(AF_INET, SOCK_STREAM, 0);
 		if(sock < 0)
 		{
-			blog(LOG_WARNING, TS3: Socket: Failed to create socket);
+			blog(LOG_WARNING, "TS3: Socket: Failed to create socket");
 			return false;
 		}
 
@@ -183,7 +183,7 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 		remoteaddr.sin_port = htons(port);
 		if(connect(sock, (struct sockaddr *)&remoteaddr, sizeof(remoteaddr)) < 0)
 		{
-			blog(LOG_WARNING, TS3: Socket: Failed to connect);
+			//blog(LOG_WARNING, "TS3: Socket: Failed to connect");
 			return false;
 		}
 		else
