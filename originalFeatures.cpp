@@ -13,7 +13,7 @@ extern "C"
 
 std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &schandlerid)
 {
-	blog(LOG_INFO, "Communicate");
+	blog(LOG_INFO, "TS3: Communicate");
 
 	std::wstring poop = L"poop";	//failure return
 
@@ -72,47 +72,47 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 		snotify = "clientnotifyregister " + schandlerid[i] + " event=notifyclientnamefromuid\n";
 		notify = snotify.c_str();
 		sendschandlerid = "use " + schandlerid[i] + "\n";
-
+		
 		//set server to notify on
 		iResult = obs.sendAll(sendschandlerid.c_str(), sendschandlerid.size(), 0);	//use schandlerid=i
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "Communicate: useschandlerid=i Send Failure");
+			blog(LOG_WARNING, "TS3: Communicate: useschandlerid=i Send Failure");
 			return poop;
 		}
 		iResult = obs.recvAll(reci2, 256, 0, "msg=");	//recieve result: error id=0...
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "Communicate: useschandlerid=i Recieve Failure");
+			blog(LOG_WARNING, "TS3: Communicate: useschandlerid=i Recieve Failure");
 			return poop;
 		}
 		memset(reci2, 0, 256);
-
+		
 		//notifyregister
 		iResult = obs.sendAll(notify, (int)strlen(notify), 0);	//request notifyregister...
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "Communicate: notifyregister Send Failure");
+			blog(LOG_WARNING, "TS3: Communicate: notifyregister Send Failure");
 			return poop;
 		}
 		iResult = obs.recvAll(reci2, 256, 0, "msg=");	//recieve result: error id=0...
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "Communicate: notifyregister Recieve Failure");
+			blog(LOG_WARNING, "TS3: Communicate: notifyregister Recieve Failure");
 			return poop;
 		}
-
+		
 		//clientnamefromuid
 		iResult = obs.sendAll(getname, (int)strlen(getname), 0);	//request clientnamefromuid...
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "Communicate: clientnamefromuid Send Failure");
+			blog(LOG_WARNING, "TS3: Communicate: clientnamefromuid Send Failure");
 			return poop;
 		}
 		iResult = obs.recvAll(reci3, 256, 0, "msg=");	//recieve name
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "Communicate: clientnamefromuid Recieve Failure");
+			blog(LOG_WARNING, "TS3: Communicate: clientnamefromuid Recieve Failure");
 			return poop;
 		}
 
@@ -121,11 +121,11 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 		std::wstring identend = L"\n";
 		std::string name = reci3;
 		std::wstring wname = s2ws(name);
-
+		
 		size_t startpos = wname.find(identstart);	//start of name
 		if(startpos == -1)
 		{
-			blog(LOG_WARNING, "Communicate: startpos == -1");
+			blog(LOG_WARNING, "TS3: Communicate: startpos == -1");
 			blog(LOG_WARNING, name.c_str());
 			//goto endofif;
 			return poop;
@@ -133,7 +133,7 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 		size_t endpos = wname.find(identend);
 		if(endpos < startpos)
 		{
-			blog(LOG_WARNING, "Communicate: endpos < startpos");
+			blog(LOG_WARNING, "TS3: Communicate: endpos < startpos");
 			blog(LOG_WARNING, name.c_str());
 			//goto endofif;
 			return poop;
@@ -141,8 +141,8 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 		wname = wname.substr(startpos+5, endpos-startpos-5);
 		int count = wcountSubstring(wname, wspace);	//number of \s
 		//wname = wname.substr(startpos+5 , 30 + count);
-		//get name end
 
+		//get name end
 		bool bprefix = getSuffix();
 		if(bprefix)	//if using suffix
 		{
@@ -216,7 +216,7 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 		//no need to send new name if name is not updated
 		if(rec.empty())
 		{
-			blog(LOG_WARNING, "Communicate: rec is empty");
+			blog(LOG_WARNING, "TS3: Communicate: rec is empty");
 			//goto endofif;
 			return poop;
 		}
@@ -225,18 +225,18 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 
 		tmp = ws2s(wnewname.str());	//set name to string
 		recname = tmp.c_str();	//set name to char* so it can be sent
-
+		
 		//clientupdate
 		iResult = obs.sendAll(recname, (int)strlen(recname), 0);
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "Communicate: clientupdate Send Failure");
+			blog(LOG_WARNING, "TS3: Communicate: clientupdate Send Failure");
 			return poop;
 		}
 		iResult = obs.recvAll(reci4, 256 ,0, "msg=");
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "Communicate: clientupdate Recieve Failure");
+			blog(LOG_WARNING, "TS3: Communicate: clientupdate Recieve Failure");
 			return poop;
 		}
 
@@ -246,28 +246,35 @@ std::wstring Communicate(int cont, slothSock &obs, std::vector<std::string> &sch
 		memset(reci3, 0, 256);
 		memset(reci4, 0, 256);
 	}
-
+	
 	//return to default server
 	sendschandlerid = "use " + schandlerid[0] + "\n";
 	iResult = obs.sendAll(sendschandlerid.c_str(), sendschandlerid.size(), 0);	//use schandlerid=i
 	if (!iResult)
 	{
-		blog(LOG_WARNING, "Communicate: useschandlerid=0 Send Failure");
+		blog(LOG_WARNING, "TS3: Communicate: useschandlerid=0 Send Failure");
 		return poop;
 	}
 	iResult = obs.recvAll(reci2, 256, 0, "msg=");	//recieve result: error id=0...
 	if (!iResult)
 	{
-		blog(LOG_WARNING, "Communicate: useschandlerid=0r Recieve Failure");
+		blog(LOG_WARNING, "TS3: Communicate: useschandlerid=0r Recieve Failure");
 		return poop;
 	}
 
+	/*delete[] reci2;
+	delete[] reci3;
+	delete[] reci4;
+	delete notify;
+	delete recname;
+	delete getname;*/
+	
 	return rname;
 }
 
 bool MuteandDeafen(int state, slothSock &obs, std::vector<std::string> &schandlerid)
 {
-	blog(LOG_INFO, "MuteandDeafen");
+	blog(LOG_INFO, "TS3: MuteandDeafen");
 
 	int mnd = getMuteAndDeafen();
 	if(mnd != 1 && mnd != 2 && mnd != 3)	//if not set to mute or deafen
@@ -302,20 +309,20 @@ bool MuteandDeafen(int state, slothSock &obs, std::vector<std::string> &schandle
 		iResult = obs.sendAll(sendschandlerid.c_str(), sendschandlerid.size(), 0);	//use schandlerid=i
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "MuteandDeafen: useschandlerid=i Send Failure");
+			blog(LOG_WARNING, "TS3: MuteandDeafen: useschandlerid=i Send Failure");
 			return false;
 		}
 		iResult = obs.recvAll(reci3, 256, 0, "msg=");	//recieve result: error id=0...
 		if (!iResult)
 		{
-			blog(LOG_WARNING, "MuteandDeafen: useschandlerid=i Recieve Failure");
+			blog(LOG_WARNING, "TS3: MuteandDeafen: useschandlerid=i Recieve Failure");
 			return false;
 		}
 		memset(reci3, 0, 256);
 
 		if(mnd == 1 || mnd == 3)	//if set to mute
 		{
-			char reci1[256];;
+			char reci1[256];
 
 			std::string tempmute = "clientupdate client_input_muted=";
 			tempmute.append(sstate.str());
@@ -324,15 +331,18 @@ bool MuteandDeafen(int state, slothSock &obs, std::vector<std::string> &schandle
 			iResult = obs.sendAll(mute, (int)strlen(mute), 0);	//set mute
 			if (!iResult)
 			{
-				blog(LOG_WARNING, "MuteandDeafen: Mute Send Failure");
+				blog(LOG_WARNING, "TS3: MuteandDeafen: Mute Send Failure");
 				return false;
 			}
+			psleep(1000);
 			iResult = obs.recvAll(reci1, 256, 0, "msg=");	//recieve result: error id=0...
 			if (!iResult)
 			{
-				blog(LOG_WARNING, "MuteandDeafen: Mute Recieve Failure");
+				blog(LOG_WARNING, "TS3: MuteandDeafen: Mute Recieve Failure");
 				return false;
 			}
+
+			//delete[] reci1;
 		}
 
 		if(mnd == 2 || mnd == 3)
@@ -345,15 +355,18 @@ bool MuteandDeafen(int state, slothSock &obs, std::vector<std::string> &schandle
 			iResult = obs.sendAll(deaf, (int)strlen(deaf), 0);	//set deafen
 			if (!iResult)
 			{
-				blog(LOG_WARNING, "MuteandDeafen: Deaf Send Failure");
+				blog(LOG_WARNING, "TS3: MuteandDeafen: Deaf Send Failure");
 				return false;
 			}
+			psleep(1000);
 			iResult = obs.recvAll(reci2, 256, 0, "msg=");	//recieve result: error id=0...
 			if (!iResult)
 			{
-				blog(LOG_WARNING, "MuteandDeafen: Deaf Recieve Failure");
+				blog(LOG_WARNING, "TS3: MuteandDeafen: Deaf Recieve Failure");
 				return false;
 			}
+
+			//delete[] reci2;
 		}
 	}
 
@@ -362,15 +375,16 @@ bool MuteandDeafen(int state, slothSock &obs, std::vector<std::string> &schandle
 	iResult = obs.sendAll(sendschandlerid.c_str(), sendschandlerid.size(), 0);	//use schandlerid=0
 	if (!iResult)
 	{
-		blog(LOG_WARNING, "MuteandDeafen: useschandlerid=0 Send Failure");
+		blog(LOG_WARNING, "TS3: MuteandDeafen: useschandlerid=0 Send Failure");
 		return false;
 	}
 	iResult = obs.recvAll(reci3, 256, 0, "msg=");	//recieve result: error id=0...
 	if (!iResult)
 	{
-		blog(LOG_WARNING, "MuteandDeafen: useschandlerid=0 Recieve Failure");
+		blog(LOG_WARNING, "TS3: MuteandDeafen: useschandlerid=0 Recieve Failure");
 		return false;
 	}
 
+	//delete[] reci3;
 	return true;
 }

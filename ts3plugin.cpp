@@ -56,6 +56,9 @@ void listen(void)
 			go = getNeedToRun();
 			if(go)
 			{
+				#if _WIN32
+					close = false;
+				#endif
 				overlayThread = std::thread(runOverlay, std::ref(close));
 				go = false;
 				toggle = true;
@@ -68,6 +71,7 @@ void listen(void)
 			{
 				#if _WIN32
 					close = true;
+					overlayThread.join();
 				#endif
 				stop = false;
 				toggle = false;
@@ -82,6 +86,7 @@ bool obs_module_load(void)
 {
 	obs_register_source(&ts3_plugin_info);
 	listenThread = std::thread(listen);
+	blog(LOG_WARNING, "TS3: Load");
 	return true;
 }
 
@@ -96,15 +101,18 @@ void obs_module_unload(void)
 
 const char *obs_module_author(void)
 {
+	blog(LOG_WARNING, "TS3: Author");
 	return "A Docile Sloth";
 }
 
 const char *obs_module_name(void)
 {
+	blog(LOG_WARNING, "TS3: Name");
 	return "TeamSpeak 3 Plugin";
 }
 
 const char *obs_module_description(void)
 {
+	blog(LOG_WARNING, "TS3: Description");
 	return "Adds an overlay for TeamSpeak 3";
 }

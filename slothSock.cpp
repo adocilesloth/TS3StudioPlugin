@@ -35,10 +35,10 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 		}  
 		if(connect(sock, (SOCKADDR *)&target, sizeof(target)) == SOCKET_ERROR) //connect
 		{
-			blog(LOG_WARNING, "TS3: Socket: Failed to connect");
+			/*blog(LOG_WARNING, "TS3: Socket: Failed to connect");
 			std::stringstream code;
 			code << WSAGetLastError();
-			blog(LOG_WARNING, code.str().c_str());
+			blog(LOG_WARNING, code.str().c_str());*/
 			return false; //Couldn't connect
 		}
 		else
@@ -71,6 +71,7 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 			ptr += i;
 			length -= i;
 		}
+		//delete ptr;
 		return true;
 	}
 
@@ -87,6 +88,7 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 			ptr += i;
 			length -= i;
 		}
+		//delete ptr;
 		return true;
 	}
 
@@ -107,6 +109,7 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 			ptr += i;
 			length -= i;
 		}
+		//delete ptr;
 		return true;
 	}
 	
@@ -131,7 +134,7 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 			{
 				vbuffer[j + lastPlace] = vtemp[j];
 			}
-							lastPlace += i;
+			lastPlace += i;
 			length -= i;
 			vtemp.clear();
 		}
@@ -165,6 +168,7 @@ A Docile Sloth 2016 (adocilesloth@gmail.com)
 			}
 			incomming.str("");
 		}
+		//delete ptr;
 		return true;
 	}
 #else	//Unix

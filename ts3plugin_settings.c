@@ -16,6 +16,7 @@ bool btalker;
 int italker;
 
 char* cluid;
+char* apikey;
 char* prefix;
 bool bsuffix;
 bool ball;
@@ -44,14 +45,18 @@ _Atomic(char*) nameList;
 _Atomic(bool) needToRun = false;
 #endif
 
+bool firstprop = true;
+
 static const char *ts3_plugin_get_name(void *unused)
 {
+	blog(LOG_WARNING, "ts3_plugin_get_name");
 	UNUSED_PARAMETER(unused);
 	return obs_module_text("TeamSpeak 3 Overlay");
 }
 
 static void *ts3_plugin_create(obs_data_t *settings, obs_source_t *source)
 {
+	blog(LOG_WARNING, "ts3_plugin_create");
 	struct ts3_overlay *overlay = bzalloc(sizeof(struct ts3_overlay));
 	overlay->source = source;
 
@@ -60,13 +65,68 @@ static void *ts3_plugin_create(obs_data_t *settings, obs_source_t *source)
 
 	obs_source_add_active_child(overlay->source, overlay->textSource);
 
+	//obs_source_update(overlay->textSource, settings);
+	//ts3_plugin_update(overlay, settings);
+
 	needToRun = true;
+
+	if(firstprop)
+	{
+		firstprop = false;
+
+		obs_properties_t *props = obs_source_properties(overlay->textSource);
+
+		//Needed TS3 Stuff
+		obs_properties_add_text(props, "ts3ip",
+			obs_module_text("IPV4"), OBS_TEXT_DEFAULT);
+		obs_data_set_default_string(overlay->textSource, "ts3ip", "127.0.0.1");
+
+		obs_properties_add_text(props, "cluid",
+			obs_module_text("UniqueID"), OBS_TEXT_PASSWORD);
+
+		obs_properties_add_text(props, "apikey",
+			obs_module_text("APIKey"), OBS_TEXT_PASSWORD);
+
+		//TS3 Overlay
+		obs_properties_add_int(props, "num_name",
+			obs_module_text("NamesToShow"), 0, 100, 1);
+		obs_data_set_default_int(overlay->textSource, "num_name", 10);
+
+		obs_properties_add_bool(props, "speaking_only",
+			obs_module_text("OnlyShowSpeakers"));
+
+		obs_properties_add_int(props, "hide_after",
+			obs_module_text("HideAfter"), 0, 2000, 1);
+
+		obs_properties_add_bool(props, "no_self",
+			obs_module_text("HideOwnName"));
+
+		obs_properties_add_bool(props, "right_of_name",
+			obs_module_text("SymbolRightOfNames"));
+		//TS3 Name Changing
+		obs_properties_add_text(props, "prefix",
+			obs_module_text("Modifier"), OBS_TEXT_DEFAULT);
+		obs_data_set_default_string(overlay->textSource, "prefix", "*R*");
+
+		obs_properties_add_bool(props, "suffix",
+			obs_module_text("ModifierAsSuffix"));
+
+		obs_properties_add_bool(props, "mute",
+			obs_module_text("MuteTS3"));
+
+		obs_properties_add_bool(props, "deafen",
+			obs_module_text("DeafenTS3"));
+
+		obs_properties_add_bool(props, "all_servers",
+			obs_module_text("ChangeAllServers"));
+	}
 	
 	return overlay;
 }
 
 static void ts3_plugin_destroy(void *data)
 {
+	blog(LOG_WARNING, "ts3_plugin_destroy");
 	needToRun = false;
 
 	struct ts3_overlay *overlay = data;
@@ -74,12 +134,14 @@ static void ts3_plugin_destroy(void *data)
 	obs_source_remove(overlay->textSource);
 	obs_source_release(overlay->textSource);
 	overlay->textSource = NULL;
-	
+	bfree(overlay->textSource);
+	overlay = NULL;
 	bfree(overlay);
 }
 
 static void ts3_plugin_update(void *data, obs_data_t *settings)
 {
+	blog(LOG_WARNING, "ts3_plugin_update");
 	struct ts3_overlay *overlay = data;
 	obs_source_update(overlay->textSource, settings);
 
@@ -100,6 +162,7 @@ static uint32_t ts3_plugin_get_height(void *data)
 
 static void ts3_plugin_render(void *data, gs_effect_t *effect)
 {
+	//blog(LOG_WARNING, "ts3_plugin_render");
 	struct ts3_overlay *overlay = data;
 
 	obs_source_video_render(overlay->textSource);
@@ -112,6 +175,7 @@ static void ts3_plugin_render(void *data, gs_effect_t *effect)
 	btalker = obs_data_get_bool(overlay->textSource, "speaking_only");
 
 	cluid = obs_data_get_string(overlay->textSource, "cluid");
+	apikey = obs_data_get_string(overlay->textSource, "apikey");
 	prefix = obs_data_get_string(overlay->textSource, "prefix");
 	bsuffix = obs_data_get_bool(overlay->textSource, "suffix");
 	ball = obs_data_get_bool(overlay->textSource, "all_servers");
@@ -138,6 +202,7 @@ static void ts3_plugin_render(void *data, gs_effect_t *effect)
 
 static void ts3_plugin_video_tick(void *data, float seconds)
 {
+	//blog(LOG_WARNING, "ts3_plugin_video_tick");
 	struct ts3_overlay *overlay = data;
 
 	if (!obs_source_showing(overlay->source))
@@ -151,6 +216,7 @@ static void ts3_plugin_video_tick(void *data, float seconds)
 
 static obs_properties_t *ts3_plugin_properties(void *data)
 {
+	blog(LOG_WARNING, "ts3_plugin_properties");
 	struct ts3_overlay *overlay = data;
 
 	obs_properties_t *props = obs_source_properties(overlay->textSource);
@@ -162,6 +228,10 @@ static obs_properties_t *ts3_plugin_properties(void *data)
 
 	obs_properties_add_text(props, "cluid",
 		obs_module_text("UniqueID"), OBS_TEXT_PASSWORD);
+
+	obs_properties_add_text(props, "apikey",
+		obs_module_text("APIKey"), OBS_TEXT_PASSWORD);
+
 	//TS3 Overlay
 	obs_properties_add_int(props, "num_name",
 		obs_module_text("NamesToShow"), 0, 100, 1);
@@ -178,6 +248,7 @@ static obs_properties_t *ts3_plugin_properties(void *data)
 
 	obs_properties_add_bool(props, "right_of_name",
 		obs_module_text("SymbolRightOfNames"));
+
 	//TS3 Name Changing
 	obs_properties_add_text(props, "prefix",
 		obs_module_text("Modifier"), OBS_TEXT_DEFAULT);
@@ -268,6 +339,11 @@ void sendOverlay(const char* names)
 char* getCluid()
 {
 	return cluid;
+}
+
+char* getAPIKey()
+{
+	return apikey;
 }
 
 char* getPrefix()

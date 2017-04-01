@@ -21,6 +21,7 @@ int getHideNameAfter();
 void sendOverlay(const char* names);
 
 char* getCluid();
+char* getAPIKey();
 char* getPrefix();
 bool getSuffix();
 bool getAllServers();
