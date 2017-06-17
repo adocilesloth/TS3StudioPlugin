@@ -72,7 +72,15 @@ void runOverlay(atomic<bool> &close)
 	bool bMnD = false;
 	vector<string> schandlerid;
 
-	psleep(1000);
+	//psleep(5000);
+	//Wait for stuff to load or obs_frontend_streaming_active() causes a crash
+	obs_source_t* sceneUsed = obs_frontend_get_current_scene();
+	while (!sceneUsed)
+	{
+		sceneUsed = obs_frontend_get_current_scene();
+		Sleep(100);
+	}
+	obs_source_release(sceneUsed);
 
 	char* apikey = getAPIKey();
 	//blog(LOG_WARNING, apikey);
@@ -611,6 +619,7 @@ void runOverlay(atomic<bool> &close)
 				overlayString = ws2s(overlay.str());
 			}
 			sendOverlay(overlayString.c_str());
+
 			psleep(100);
 		}
 		blog(LOG_INFO, "TS3: Closing Connection");
